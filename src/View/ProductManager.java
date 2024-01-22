@@ -25,10 +25,7 @@ public class ProductManager extends javax.swing.JFrame {
         showTable();
         
     }
-    
-    
-    
-    
+  
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -138,12 +135,6 @@ public class ProductManager extends javax.swing.JFrame {
                     .addComponent(btnSearch))
                 .addGap(20, 20, 20))
         );
-
-        txtTensp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTenspActionPerformed(evt);
-            }
-        });
 
         cbLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cà phê", "Trà sữa", "Trà", "Nước ép" }));
 
@@ -260,9 +251,6 @@ public class ProductManager extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void txtTenspActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTenspActionPerformed
-    }//GEN-LAST:event_txtTenspActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         selectedIndex = Table.getSelectedRow();

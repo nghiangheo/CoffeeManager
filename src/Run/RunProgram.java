@@ -2,7 +2,6 @@ package Run;
 import javax.swing.UIManager;
 import javax.swing.UIManager.*;
 import View.Login;
-
 /**
  *
  * @author NBN
