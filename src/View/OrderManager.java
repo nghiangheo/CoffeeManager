@@ -1,13 +1,17 @@
 package View;
+import Controler.DAOCustomer;
 import javax.swing.UIManager;
 import javax.swing.UIManager.*;
 import Controler.DAOOrder;
 import Controler.DAOOrderedProduct;
 import Controler.DAOProduct;
+import Model.Customer;
 import Model.Order;
 import Model.Product;
 import Model.OrderedProduct;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -103,7 +107,12 @@ public class OrderManager extends javax.swing.JFrame {
 
         jLabel12.setText("Giá:");
 
-        cbLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cà phê", "Trà sữa", "Trà", "Nước ép" }));
+        cbLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cà phê", "Trà sữa", "Trà", "Nước ép", "Thêm mục mới" }));
+        cbLoai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbLoaiActionPerformed(evt);
+            }
+        });
 
         jLabel16.setText("Số Lượng:");
 
@@ -183,6 +192,7 @@ public class OrderManager extends javax.swing.JFrame {
         jLabel6.setText("SĐT:");
 
         jLabel8.setText("Date:");
+
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -495,6 +505,8 @@ public class OrderManager extends javax.swing.JFrame {
         txtTenkh.setText("");
         txtSdt.setText("");
         txtSoluong.setText("");
+        txtDate.setText("");
+        txtThanhtien.setText("");
         new DAOOrderedProduct().DeleteDM();
         showTableDM();
     }//GEN-LAST:event_btnRefreshActionPerformed
@@ -509,16 +521,35 @@ public class OrderManager extends javax.swing.JFrame {
     }//GEN-LAST:event_TableSPMouseClicked
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        boolean isOK = true;
         String Masp="";
         int Soluong = 0;
         int Gia = 0;
+        
         Masp=txtMasp.getText();
+        try{
         Soluong=Integer.parseInt(txtSoluong.getText());
         Gia=Integer.parseInt(txtGia.getText());
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "Số lượng hoặc giá số không phải kí tự");
+            isOK = false;
+        }
         int Tong = Soluong*Gia;
         OrderedProduct op = new OrderedProduct(Soluong, Tong, Masp);
-        new DAOOrderedProduct().AddDM(op);
-        showTableDM();
+
+            if(txtMasp.getText().equals("")||txtSoluong.getText().equals("")
+                ||txtDiachi.getText().equals("")||txtGia.getText().equals("")
+                ||txtSdt.getText().equals("")||txtNgaydat.getText().equals("")
+                    ||txtTenkh.getText().equals("")||txtTensp.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
+            isOK = false;
+        }
+            if(isOK){
+                new DAOOrderedProduct().AddDM(op);
+                showTableDM();
+            }else {
+            JOptionPane.showMessageDialog(this, "Lỗi xảy ra khi thêm dữ liệu");
+        }
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
@@ -532,6 +563,11 @@ public class OrderManager extends javax.swing.JFrame {
         showTableHD();
         JOptionPane.showMessageDialog(this, "Thêm đơn hàng thành công!");
         
+        Customer c = new Customer();
+        c.setTenkh(txtTenkh.getText());
+        c.setDiachi(txtDiachi.getText());
+        c.setSdt(txtSdt.getText());
+        new DAOCustomer().AddKH(c);
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void TableDMMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TableDMMouseClicked
@@ -583,22 +619,26 @@ public class OrderManager extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Hãy chọn một dòng rồi sửa");
     } else {
         Order s = order.get(selectedIndex);
-
+        boolean isOK = true;
         // Kiểm tra xem selectedIndex có giá trị hợp lệ không
         if (selectedIndex >= 0 && selectedIndex < order.size()) {
+            if(txtDate.getText().equals("")||txtThanhtien.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
+            isOK = false;
+        }
             
-            new DAOOrder().DeleteDH(s.getId());
-            s.setDate(txtDate.getText());
-            s.setThanhTien(Integer.parseInt(txtThanhtien.getText()));
-            boolean isOK = true;
+            
             try {
                 s.setThanhTien(Integer.parseInt(txtThanhtien.getText()));
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Là số không phải kí tự");
+                JOptionPane.showMessageDialog(this, "Thành tiền là số không phải kí tự");
                 isOK = false;
             }
 
             if (isOK) {
+                new DAOOrder().DeleteDH(s.getId());
+            s.setDate(txtDate.getText());
+            s.setThanhTien(Integer.parseInt(txtThanhtien.getText()));
                 new DAOOrder().AddDH(s);
                 showTableHD();
                 JOptionPane.showMessageDialog(this, "Sửa thành công");
@@ -608,6 +648,28 @@ public class OrderManager extends javax.swing.JFrame {
         }
     }
     }//GEN-LAST:event_btnEditActionPerformed
+
+    private void cbLoaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbLoaiActionPerformed
+        JComboBox<String> comboBox = (JComboBox<String>) evt.getSource();
+
+    // Kiểm tra xem mục được chọn có phải là "Thêm mục mới" không
+    if (comboBox.getSelectedItem() != null && comboBox.getSelectedItem().equals("Thêm mục mới")) {
+        // Hỏi người dùng nhập mục mới
+        String newItem = JOptionPane.showInputDialog(this, "Nhập mục mới:");
+
+        // Kiểm tra xem mục đã tồn tại chưa
+        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboBox.getModel();
+        int index = model.getIndexOf(newItem);
+
+        if (newItem != null && !newItem.isEmpty() && index == -1) {
+            // Thêm mục mới vào ComboBox
+            model.insertElementAt(newItem, model.getSize() - 1);
+            comboBox.setSelectedItem(newItem);
+        } else if (index != -1) {
+            JOptionPane.showMessageDialog(this, "Mục đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_cbLoaiActionPerformed
 
    
     public static void main(String args[]) {

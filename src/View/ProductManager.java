@@ -3,6 +3,8 @@ import Controler.DAOProduct;
 import Model.Product;
 import java.util.List;
 import java.sql.SQLException;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.UIManager;
@@ -12,7 +14,7 @@ import javax.swing.UIManager.*;
  *
  * @author NBN
  */
-public class ProductManager extends javax.swing.JFrame {
+public class ProductManager extends javax.swing.JFrame{
 
     private List<Product> product;
     private DefaultTableModel Model;
@@ -136,7 +138,13 @@ public class ProductManager extends javax.swing.JFrame {
                 .addGap(20, 20, 20))
         );
 
-        cbLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cà phê", "Trà sữa", "Trà", "Nước ép" }));
+
+        cbLoai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cà phê", "Trà sữa", "Trà", "Nước ép", "Thêm mục mới" }));
+        cbLoai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbLoaiActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -284,7 +292,13 @@ public class ProductManager extends javax.swing.JFrame {
             s.setGia(Integer.parseInt(txtGia.getText()));
             
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Là số không phải kí tự");
+            JOptionPane.showMessageDialog(this, "Giá là số không phải kí tự");
+            isOK = false;
+        }
+        
+            if(txtGia.getText().equals("")||txtMasp.getText().equals("")
+                ||txtTensp.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
             isOK = false;
         }
         if(isOK){
@@ -305,12 +319,7 @@ public class ProductManager extends javax.swing.JFrame {
             // Kiểm tra xem selectedIndex có giá trị hợp lệ không
             if (selectedIndex >= 0 && selectedIndex < product.size()) {
 
-                new DAOProduct().DeleteSP(s.getId());
-
-                // Product s = new Product();
-                s.setMasp(txtMasp.getText());
-                s.setTensp(txtTensp.getText());
-                s.setLoai(cbLoai.getSelectedItem().toString());
+                
                 boolean isOK = true;
                 try {
                     s.setGia(Integer.parseInt(txtGia.getText()));
@@ -318,8 +327,16 @@ public class ProductManager extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Là số không phải kí tự");
                     isOK = false;
                 }
-
+                if(txtGia.getText().equals("")||txtMasp.getText().equals("")
+                ||txtTensp.getText().equals("")){
+                    JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
+                    isOK = false;
+                }
                 if (isOK) {
+                    new DAOProduct().DeleteSP(s.getId());
+                s.setMasp(txtMasp.getText());
+                s.setTensp(txtTensp.getText());
+                s.setLoai(cbLoai.getSelectedItem().toString());
                     new DAOProduct().AddSP(s);
                     showTable();
                     JOptionPane.showMessageDialog(this, "Sửa thành công");
@@ -376,6 +393,41 @@ public class ProductManager extends javax.swing.JFrame {
         Home home = new Home();
         home.setVisible(true);
     }//GEN-LAST:event_btnExitActionPerformed
+    public void addNewItem(String newItem) {
+        // Xử lý thêm mục mới trong ProductManager
+        // Ví dụ: Thêm mục mới vào ComboBox
+        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) cbLoai.getModel();
+        int index = model.getIndexOf(newItem);
+
+        if (index == -1) {
+            model.insertElementAt(newItem, model.getSize() - 1);
+            cbLoai.setSelectedItem(newItem);
+        } else {
+            JOptionPane.showMessageDialog(this, "Mục đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void cbLoaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbLoaiActionPerformed
+        JComboBox<String> comboBox = (JComboBox<String>) evt.getSource();
+
+    // Kiểm tra xem mục được chọn có phải là "Thêm mục mới" không
+    if (comboBox.getSelectedItem() != null && comboBox.getSelectedItem().equals("Thêm mục mới")) {
+        // Hỏi người dùng nhập mục mới
+        String newItem = JOptionPane.showInputDialog(this, "Nhập mục mới:");
+
+        // Kiểm tra xem mục đã tồn tại chưa
+        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboBox.getModel();
+        int index = model.getIndexOf(newItem);
+
+        if (newItem != null && !newItem.isEmpty() && index == -1) {
+            // Thêm mục mới vào ComboBox
+            model.insertElementAt(newItem, model.getSize() - 1);
+            comboBox.setSelectedItem(newItem);
+        } else if (index != -1) {
+            JOptionPane.showMessageDialog(this, "Mục đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_cbLoaiActionPerformed
        
     
     public static void main(String args[]) {
@@ -427,4 +479,5 @@ public class ProductManager extends javax.swing.JFrame {
             });
         }
     }
+    
 }

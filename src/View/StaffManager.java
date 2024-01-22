@@ -7,6 +7,8 @@ import java.awt.event.ItemListener;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.UIManager;
@@ -47,7 +49,11 @@ public class StaffManager extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup3 = new javax.swing.ButtonGroup();
+        buttonGroup4 = new javax.swing.ButtonGroup();
+        buttonGroup5 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -115,7 +121,12 @@ public class StaffManager extends javax.swing.JFrame {
 
         rdNu.setText("Nữ");
 
-        cbChucVu.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "(BH) Bán Hàng", "(BV) Bảo Vệ", "(QL) Quản Lý" }));
+        cbChucVu.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "(BH) Bán Hàng", "(BV) Bảo Vệ", "(QL) Quản Lý", "Thêm mục mới" }));
+        cbChucVu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbChucVuActionPerformed(evt);
+            }
+        });
 
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
 
@@ -356,7 +367,13 @@ public class StaffManager extends javax.swing.JFrame {
             s.setLuong(Integer.parseInt(txtLuong.getText()));
             
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Là số không phải kí tự");
+            JOptionPane.showMessageDialog(this, "Lương là số không phải kí tự");
+            isOK = false;
+        }
+        if(txtManv.getText().equals("")||txtHoTen.getText().equals("")
+                ||txtNgaySinh.getText().equals("")||txtDiaChi.getText().equals("")
+                ||txtSdt.getText().equals("")||txtEmail.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
             isOK = false;
         }
         if(isOK){
@@ -412,31 +429,40 @@ public class StaffManager extends javax.swing.JFrame {
 
         // Kiểm tra xem selectedIndex có giá trị hợp lệ không
         if (selectedIndex >= 0 && selectedIndex < staff.size()) {
-            // Xóa nhân viên cũ
-            new DAOStaff().DeleteNV(s.getId());
-            s.setManv(txtManv.getText());
-            s.setTennv(txtHoTen.getText());
-            s.setChucvu(cbChucVu.getSelectedItem().toString());
-            s.setNgaysinh(txtNgaySinh.getText());
-            s.setDiachi(txtDiaChi.getText());
-            s.setSDT(txtSdt.getText());
-            s.setEmail(txtEmail.getText());
-            String gt = "";
-            if (rdNam.isSelected()) {
-                gt = "Nam";
-            } else {
-                gt = "Nữ";
-            }
-            s.setGt(gt);
             boolean isOK = true;
+            if(txtManv.getText().equals("")||txtHoTen.getText().equals("")
+                ||txtNgaySinh.getText().equals("")||txtDiaChi.getText().equals("")
+                ||txtSdt.getText().equals("")||txtEmail.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ!");
+            isOK = false;
+        }
+                        
             try {
                 s.setLuong(Integer.parseInt(txtLuong.getText()));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Là số không phải kí tự");
                 isOK = false;
             }
+            
 
-            if (isOK) {                
+            if (isOK) { 
+                    // Xóa nhân viên cũ
+                new DAOStaff().DeleteNV(s.getId());
+                s.setManv(txtManv.getText());
+                s.setTennv(txtHoTen.getText());
+                s.setChucvu(cbChucVu.getSelectedItem().toString());
+                s.setNgaysinh(txtNgaySinh.getText());
+                s.setDiachi(txtDiaChi.getText());
+                s.setSDT(txtSdt.getText());
+                s.setEmail(txtEmail.getText());
+                String gt = "";
+                if (rdNam.isSelected()) {
+                    gt = "Nam";
+                } else {
+                    gt = "Nữ";
+                }
+                s.setGt(gt);
+
                 new DAOStaff().AddNV(s);
                 showTable();
                 JOptionPane.showMessageDialog(this, "Sửa thành công");
@@ -507,6 +533,26 @@ public class StaffManager extends javax.swing.JFrame {
         home.setVisible(true);
     }//GEN-LAST:event_btnExitActionPerformed
 
+    private void cbChucVuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbChucVuActionPerformed
+        JComboBox<String> comboBox = (JComboBox<String>) evt.getSource();
+
+    // Kiểm tra xem mục được chọn có phải là "Thêm mục mới" không
+    if (comboBox.getSelectedItem() != null && comboBox.getSelectedItem().equals("Thêm mục mới")) {
+        // Hỏi người dùng nhập mục mới
+        String newItem = JOptionPane.showInputDialog(this, "Nhập mục mới:");
+
+        // Kiểm tra xem mục đã tồn tại chưa
+        if (newItem != null && !newItem.isEmpty() && !containsItem(comboBox, newItem)) {
+            // Thêm mục mới vào ComboBox
+            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboBox.getModel();
+            model.insertElementAt(newItem, model.getSize() - 1);
+            comboBox.setSelectedItem(newItem);
+        } else if (newItem != null && containsItem(comboBox, newItem)) {
+            JOptionPane.showMessageDialog(this, "Mục đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_cbChucVuActionPerformed
+
     public static void main(String args[]) {
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -533,6 +579,11 @@ public class StaffManager extends javax.swing.JFrame {
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSearch;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
+    private javax.swing.ButtonGroup buttonGroup3;
+    private javax.swing.ButtonGroup buttonGroup4;
+    private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.JComboBox<String> cbChucVu;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -567,4 +618,12 @@ public class StaffManager extends javax.swing.JFrame {
             });
         }
     }
+    private static boolean containsItem(JComboBox<String> comboBox, String newItem) {
+    for (int i = 0; i < comboBox.getItemCount(); i++) {
+        if (comboBox.getItemAt(i).equals(newItem)) {
+            return true; // Mục đã tồn tại
+        }
+    }
+    return false; // Mục chưa tồn tại
+}
 }

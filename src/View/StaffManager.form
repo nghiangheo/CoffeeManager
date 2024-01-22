@@ -274,13 +274,17 @@
         <Component class="javax.swing.JComboBox" name="cbChucVu">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="3">
+              <StringArray count="4">
                 <StringItem index="0" value="(BH) B&#xe1;n H&#xe0;ng"/>
                 <StringItem index="1" value="(BV) B&#x1ea3;o V&#x1ec7;"/>
                 <StringItem index="2" value="(QL) Qu&#x1ea3;n L&#xfd;"/>
+                <StringItem index="3" value="Th&#xea;m m&#x1ee5;c m&#x1edb;i"/>
               </StringArray>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbChucVuActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
